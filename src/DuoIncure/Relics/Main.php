@@ -40,16 +40,23 @@ class Main extends PluginBase{
 			new GiveRelicCommand($this),
 			new RelicAllCommand($this)
 		]);
+		$this->registerCrafts();
 	}
 
 	/**
 	 * @return RelicFunctions
 	 */
-	public function getRelicFunctions(){
+	public function getRelicFunctions(): RelicFunctions{
 		if(!$this->relicFunctions instanceof RelicFunctions){
 			throw new RuntimeException("relicFunctions was not an instanceof RelicFunctions");
 		}
 		return $this->relicFunctions;
+	}
+
+	public function registerCrafts(){
+		$this->getRelicFunctions()->registerCraft("common", "rare");
+		$this->getRelicFunctions()->registerCraft("rare", "epic");
+		$this->getRelicFunctions()->registerCraft("epic", "legendary");
 	}
 
 }

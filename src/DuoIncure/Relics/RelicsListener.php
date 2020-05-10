@@ -2,14 +2,17 @@
 
 namespace DuoIncure\Relics;
 
+use pocketmine\event\inventory\CraftItemEvent;
 use pocketmine\event\Listener;
+use pocketmine\math\Vector3;
 use pocketmine\nbt\tag\StringTag;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\event\block\BlockBreakEvent;
 use function in_array;
 use function rand;
 
-class RelicsListener implements Listener {
+class RelicsListener implements Listener
+{
 
 	/** @var Main */
 	private $plugin;
@@ -26,14 +29,15 @@ class RelicsListener implements Listener {
 	/**
 	 * @param PlayerInteractEvent $ev
 	 */
-	public function onInteract(PlayerInteractEvent $ev){
+	public function onInteract(PlayerInteractEvent $ev)
+	{
 		$player = $ev->getPlayer();
-		if($ev->getAction() === PlayerInteractEvent::RIGHT_CLICK_BLOCK || $ev->getAction() === PlayerInteractEvent::RIGHT_CLICK_AIR){
+		if ($ev->getAction() === PlayerInteractEvent::RIGHT_CLICK_BLOCK || $ev->getAction() === PlayerInteractEvent::RIGHT_CLICK_AIR) {
 			$item = $ev->getItem();
 			$nbt = $item->getNamedTag();
-			if($nbt->hasTag(RelicFunctions::RELIC_TAG)){
+			if ($nbt->hasTag(RelicFunctions::RELIC_TAG)) {
 				$relicType = $nbt->getTagValue(RelicFunctions::RELIC_TAG, StringTag::class);
-				switch($relicType){
+				switch ($relicType) {
 					case "common":
 						$this->plugin->getRelicFunctions()->giveRelicReward($player, $item, "common");
 						break;
@@ -56,14 +60,15 @@ class RelicsListener implements Listener {
 	 * @priority MONITOR
 	 * @ignoreCancelled true
 	 */
-	public function onBreak(BlockBreakEvent $ev){
+	public function onBreak(BlockBreakEvent $ev)
+	{
 		$player = $ev->getPlayer();
 		$config = $this->plugin->getConfig()->getAll();
 		$blockID = $ev->getBlock()->getId();
 		$configBlocks = $config["block-ids"];
 		$configWorlds = $config["worlds"];
 		$levelName = $player->getLevel()->getName();
-		if(in_array($blockID, $configBlocks) && ($configWorlds[0] == "*" OR in_array($levelName, $configWorlds))){
+		if (in_array($blockID, $configBlocks) && ($configWorlds[0] == "*" OR in_array($levelName, $configWorlds))) {
 			$commonChance = $config["common"]["chance"] ?? 10;
 			$rareChance = $config["rare"]["chance"] ?? 5;
 			$epicChance = $config["epic"]["chance"] ?? 3;
@@ -72,7 +77,7 @@ class RelicsListener implements Listener {
 			$chance = rand(1, 200);
 			if ($chance <= $commonChance) {
 				$this->plugin->getRelicFunctions()->giveRelic($player, "common", 1);
-				} else {
+			} else {
 				$chance -= $commonChance;
 				if ($chance <= $rareChance) {
 					$this->plugin->getRelicFunctions()->giveRelic($player, "rare", 1);
@@ -89,5 +94,12 @@ class RelicsListener implements Listener {
 				}
 			}
 		}
+	}
+
+	/**
+	 * @param CraftItemEvent $event
+	 */
+	public function onCraft(CraftItemEvent $event):void{
+		$event->setCancelled();
 	}
 }

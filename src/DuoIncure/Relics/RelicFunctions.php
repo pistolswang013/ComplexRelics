@@ -3,6 +3,7 @@
 namespace DuoIncure\Relics;
 
 use pocketmine\command\ConsoleCommandSender;
+use pocketmine\inventory\ShapedRecipe;
 use pocketmine\item\Item;
 use pocketmine\item\ItemFactory;
 use pocketmine\level\particle\HappyVillagerParticle;
@@ -142,5 +143,16 @@ class RelicFunctions {
 				$player->sendMessage($message);
 				break;
 		}
+	}
+
+	public function registerCraft(string $recipeType, string $resultType){
+		$recipeRelic = $this->createRelic($recipeType, 1);
+		$resultRelic = $this->createRelic($resultType, 1);
+		$recipe = new ShapedRecipe(
+			["aa", "aa"],
+			["a" => $recipeRelic],
+			[$resultRelic]
+		);
+		$this->plugin->getServer()->getCraftingManager()->registerRecipe($recipe);
 	}
 }
